@@ -1,6 +1,7 @@
 import 'package:cryptox/pages/buySccessFailScreen/buy_fail_screen.dart';
 import 'package:cryptox/pages/buySccessFailScreen/buy_success_screen.dart';
 import 'package:cryptox/pages/profile/profile.dart';
+import 'package:cryptox/pages/profile/send_ether_by_wallet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_credit_card/credit_card_brand.dart';
 import 'package:flutter_credit_card/credit_card_form.dart';
@@ -53,30 +54,35 @@ class _BankDetailsState extends State<BankDetails> {
       ),
       home: Container(
         decoration: BoxDecoration(
-                        gradient: LinearGradient(colors: [Color.fromRGBO(26,26,26,1),Color.fromRGBO(226,16,78,1),]),
-                      ),
+          gradient: LinearGradient(colors: [
+            Color.fromRGBO(26, 26, 26, 1),
+            Color.fromRGBO(226, 16, 78, 1),
+          ]),
+        ),
         child: Scaffold(
           resizeToAvoidBottomInset: false,
           backgroundColor: Colors.transparent,
           appBar: AppBar(
-          flexibleSpace: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [Color.fromRGBO(26,26,26,1),Color.fromRGBO(226,16,78,1),]),
-              )
+            flexibleSpace: Container(
+                decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [
+                Color.fromRGBO(26, 26, 26, 1),
+                Color.fromRGBO(226, 16, 78, 1),
+              ]),
+            )),
+            titleSpacing: 0.0,
+            title: Text(
+              'Bank Details',
+              style: TextStyle(color: Colors.white),
             ),
-          titleSpacing: 0.0,
-          title: Text(
-            'Bank Details',
-            style: TextStyle(color: Colors.white),
-          ),
-          leading: IconButton(
-            icon: Icon(
-              Icons.arrow_back,
-              color: Colors.white,
+            leading: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                color: Colors.white,
+              ),
+              onPressed: () => Navigator.pop(context),
             ),
-            onPressed: () => Navigator.pop(context),
           ),
-        ),
           body: Container(
             child: SafeArea(
               child: Column(
@@ -99,7 +105,8 @@ class _BankDetailsState extends State<BankDetails> {
                     backgroundImage:
                         useBackgroundImage ? 'assets/logo.jpg' : null,
                     isSwipeGestureEnabled: true,
-                    onCreditCardWidgetChange: (CreditCardBrand creditCardBrand) {},
+                    onCreditCardWidgetChange:
+                        (CreditCardBrand creditCardBrand) {},
                     customCardTypeIcons: <CustomCardTypeIcon>[
                       CustomCardTypeIcon(
                         cardType: CardType.mastercard,
@@ -211,36 +218,71 @@ class _BankDetailsState extends State<BankDetails> {
                             onPressed: () {
                               if (formKey.currentState?.validate()) {
                                 Fluttertoast.showToast(
-        msg: 'Your Information is Valid',  
-        // toastLength: Toast.LENGTH_SHORT,  
-        gravity: ToastGravity.BOTTOM,  
-        timeInSecForIosWeb: 2,  
-        backgroundColor: Colors.red,  
-        textColor: Colors.yellow,
-    );
-    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.size,
-                            alignment: Alignment.bottomCenter,
-                            child: BuySuccessScreen()));
+                                  msg: 'Your Information is Valid',
+                                  // toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.BOTTOM,
+                                  timeInSecForIosWeb: 2,
+                                  backgroundColor: Colors.red,
+                                  textColor: Colors.yellow,
+                                );
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.size,
+                                        alignment: Alignment.bottomCenter,
+                                        child: BuySuccessScreen()));
                               } else {
                                 Fluttertoast.showToast(
-        msg: 'Your Information is InValid',  
-        // toastLength: Toast.LENGTH_SHORT,  
-        gravity: ToastGravity.BOTTOM,  
-        timeInSecForIosWeb: 2,  
-        backgroundColor: Colors.red,  
-        textColor: Colors.yellow  
-    );
-    Navigator.push(
-                        context,
-                        PageTransition(
-                            type: PageTransitionType.size,
-                            alignment: Alignment.bottomCenter,
-                            child: BuyFailScreen()));
+                                    msg: 'Your Information is InValid',
+                                    // toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 2,
+                                    backgroundColor: Colors.red,
+                                    textColor: Colors.yellow);
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.size,
+                                        alignment: Alignment.bottomCenter,
+                                        child: BuyFailScreen()));
                               }
                             },
+                          ),
+                          const SizedBox(
+                            height: 20,
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+//                              primary: const Color(0xff1b447b),
+                              primary: const Color(0xff8b447b),
+
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(12),
+                              child: const Text(
+                                'Send Ether Using Wallet',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: 'halter',
+                                  fontSize: 14,
+                                  package: 'flutter_credit_card',
+                                ),
+                              ),
+                            ),
+                            onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        type: PageTransitionType.size,
+                                        alignment: Alignment.bottomCenter,
+                                        child: SendEtherByWallet()));
+                              }
+                          ),
+                          const SizedBox(
+                            height: 20,
                           ),
                         ],
                       ),

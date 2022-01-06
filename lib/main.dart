@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
 //      home: SplashScreen(),
-      home: SendEtherByWallet(),
+//      home: SendEtherByWallet(),
+      home: BankDetails(),
     );
   }
 }

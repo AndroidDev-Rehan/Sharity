@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:scan/scan.dart';
 
+
 class QRScanView extends StatefulWidget {
   const QRScanView({Key key}) : super(key: key);
 
