@@ -306,4 +306,6 @@ class _BankDetailsState extends State<BankDetails> {
       isCvvFocused = creditCardModel.isCvvFocused;
     });
   }
+
+
 }

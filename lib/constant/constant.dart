@@ -9,6 +9,8 @@ const Color orangeColor = const Color(0xFFFFA500);
 const Color greenColor = const Color(0xFF006400);
 const Color scaffoldBgColor = const Color(0xFFF2F4F6);
 
+const String adminPhoneNumber = "+923244564754";
+
 const double fixPadding = 10.0;
 
 const SizedBox heightSpace = const SizedBox(height: 10.0);

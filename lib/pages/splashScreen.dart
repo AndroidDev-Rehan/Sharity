@@ -1,6 +1,9 @@
 import 'dart:async';
 
+import 'package:cryptox/constant/constant.dart';
+import 'package:cryptox/pages/admin/adminCharity.dart';
 import 'package:cryptox/pages/screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
@@ -18,8 +21,36 @@ class _SplashScreenState extends State<SplashScreen> {
 
     Timer(
         Duration(seconds: 4),
-        () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Login())));
+        () => Navigator.pushReplacement(
+            context, MaterialPageRoute(
+//            builder: (context) => loginStatus()? loginedAsAdmin() ? AdminCharityScreen() : BottomBar : Login()
+            builder: (context) {
+              if (loginStatus()){
+                if(loginedAsAdmin())
+                  {
+                    return AdminCharityScreen();
+                  }
+                else return BottomBar();
+              }
+              else
+                return Login();
+              return AdminCharityScreen();
+            }
+        )
+        )
+    );
+  }
+
+  bool loginStatus() {
+    if(FirebaseAuth.instance.currentUser == null)
+      return false;
+    return true;
+  }
+
+  bool loginedAsAdmin() {
+    if(FirebaseAuth.instance.currentUser.phoneNumber.toString() == adminPhoneNumber )
+      return true;
+    return false;
   }
 
   @override

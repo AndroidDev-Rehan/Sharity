@@ -1,5 +1,6 @@
 import 'package:cryptox/constant/constant.dart';
 import 'package:cryptox/pages/auth/otp_screen.dart';
+import 'package:cryptox/pages/home/home.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -171,7 +172,7 @@ class _RegisterState extends State<Register> {
                         context,
                         PageTransition(
                           type: PageTransitionType.rightToLeft,
-                          child: OTPScreen(),
+                          child: BottomBar(),
                         ),
                       );
                     },

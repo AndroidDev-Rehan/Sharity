@@ -208,6 +208,11 @@ class _EnterPinScreenState extends State<EnterPinScreen> {
                         pinRoundedItem(pin3),
                         widthSpace,
                         pinRoundedItem(pin4),
+                        widthSpace,
+                        // pinRoundedItem(pin5),
+                        // widthSpace,
+                        // pinRoundedItem(pin6),
+
                       ],
                     ),
                     height20Space,

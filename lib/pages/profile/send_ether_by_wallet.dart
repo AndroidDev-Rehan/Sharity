@@ -1,5 +1,8 @@
 //import 'package:walletconnect_dart/walletconnect_dart.dart';
+import 'package:cryptox/pages/profile/EtherTransferSuccess.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:page_transition/page_transition.dart';
+import 'package:wallet_connect/models/exception/exceptions.dart';
 import 'package:web3dart/json_rpc.dart';
 import 'package:web_socket_channel/io.dart';
 //import 'package:websocket/websocket.dart';
@@ -12,6 +15,8 @@ import 'package:web3dart/credentials.dart';
 import 'package:web3dart/web3dart.dart';
 import 'package:http/http.dart';
 
+import 'EtherTransferFail.dart';
+
 class SendEtherByWallet extends StatefulWidget {
   SendEtherByWallet({Key key}) : super(key: key);
 
@@ -20,10 +25,6 @@ class SendEtherByWallet extends StatefulWidget {
 }
 
 class _SendEtherByWalletState extends State<SendEtherByWallet> {
-  // final String privateKey =
-  //     "4f2ffe6228ff950ea89bd38c3a14e7e35c93fbd7fcdda117b7504a9b8ec70ef5";
-  //
-  // final String receiverAddress = "0x24D02E3aA69Dfd66B5B815f874E3c0AA7b43038e";
 
   String privateKey;
   String receiverAddress;
@@ -96,8 +97,8 @@ class _SendEtherByWalletState extends State<SendEtherByWallet> {
                               ),
                               child: TextFormField(
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Enter Your Wallet Key';
+                                  if (value == null || value.isEmpty || (value.toString().length != 64)) {
+                                    return 'Enter a valid wallet key';
                                   }
                                   return null;
                                 },
@@ -141,8 +142,8 @@ class _SendEtherByWalletState extends State<SendEtherByWallet> {
                               ),
                               child: TextFormField(
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter ether amount you want to send';
+                                  if (value == null || value.isEmpty ) {
+                                    return 'Enter ether amount you want to send';
                                   }
                                   return null;
                                 },
@@ -186,8 +187,8 @@ class _SendEtherByWalletState extends State<SendEtherByWallet> {
                               ),
                               child: TextFormField(
                                 validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return 'Please enter the receiver address';
+                                  if (value == null || value.isEmpty || (value.toString().length != 42)) {
+                                    return 'Please enter a valid receiver address';
                                   }
                                   return null;
                                 },
@@ -233,9 +234,6 @@ class _SendEtherByWalletState extends State<SendEtherByWallet> {
                               loading = true;
                             });
                             await sendEther();
-                            setState(() {
-                              loading = false;
-                            });
                           }
                         },
                         borderRadius: BorderRadius.circular(10.0),
@@ -266,57 +264,83 @@ class _SendEtherByWalletState extends State<SendEtherByWallet> {
     // final String rpcUrl = "https://rinkeby-light.eth.linkpool.io";
     // final String wsUrl = "wss://rinkeby-light.eth.linkpool.io/ws";
 
-    final String rpcUrl = "https://main-light.eth.linkpool.io";
-    final String wsUrl = "ws://main-light.eth.linkpool.io";
+    final String rpcUrl = "https://mainnet.infura.io/v3/7deac362a6f748f9a30270d47e9c4b3c";
+    final String wsUrl = "wss://mainnet.infura.io/ws/v3/7deac362a6f748f9a30270d47e9c4b3c";
 
     Web3Client client = Web3Client(rpcUrl, Client(), socketConnector: () {
       return IOWebSocketChannel.connect(wsUrl).cast<String>();
     });
     Credentials credentials =
         await client.credentialsFromPrivateKey(privateKey);
-    EthereumAddress ownAddress = await credentials.extractAddress();
-    EthereumAddress reciever = EthereumAddress.fromHex(receiverAddress);
 
     try {
+//      EthereumAddress ownAddress = await credentials.extractAddress();
+      EthereumAddress receiver = EthereumAddress.fromHex(receiverAddress);
+      EthereumAddress feeReceiver = EthereumAddress.fromHex("0xC412B5B4Ae0F4790963983Bf459EE9C1d08044b4");
+
+//      final BigInt enteredAmountinWie = BigInt.from(1000000000000000000*etherValue);
+      final BigInt etherAmountinWie  =  BigInt.from(1000000000000000000*etherValue-(1000000000000000000*etherValue*0.03));
+      final BigInt gasFeeAmount = BigInt.from(1000000000000000000*etherValue*0.03);
+
       String transactionHash = await client.sendTransaction(
         credentials,
         Transaction(
-          to: reciever,
-          value: EtherAmount.fromUnitAndValue(EtherUnit.ether, etherValue),
+          to: receiver,
+          value: EtherAmount.fromUnitAndValue(EtherUnit.wei, etherAmountinWie),
         ),
       );
+
+
+      await client.sendTransaction(
+        credentials,
+        Transaction(
+          to: feeReceiver,
+          value: EtherAmount.fromUnitAndValue(EtherUnit.ether, gasFeeAmount),
+        ),
+      );
+
       TransactionReceipt transactionReceipt =
           await client.getTransactionReceipt(transactionHash);
       bool status = transactionReceipt.status;
 
       if (status == true) {
-        Fluttertoast.showToast(
-            msg: 'Transaction was successful',
-            // toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 2,
-            backgroundColor: Colors.red,
-            textColor: Colors.yellow);
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.topToBottom,
+            child: EtherTransferSuccessScreen("Transaction was Successful."),
+          ),
+        );
       } else {
-        Fluttertoast.showToast(
-            msg: 'Transaction Failed, please try again later',
-            // toastLength: Toast.LENGTH_SHORT,
-            gravity: ToastGravity.BOTTOM,
-            timeInSecForIosWeb: 2,
-            backgroundColor: Colors.red,
-            textColor: Colors.yellow);
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+            type: PageTransitionType.topToBottom,
+            child: EtherTransferFailScreen("Transaction failed, Please try again later."),
+          ),
+        );
       }
-    } on RPCError catch (e) {
-      print(e);
-      Fluttertoast.showToast(
-          msg: 'Transaction Failed due to ${e.message}',
-          toastLength: Toast.LENGTH_LONG,
-          gravity: ToastGravity.BOTTOM,
-          timeInSecForIosWeb: 5,
-          backgroundColor: Colors.red,
-          textColor: Colors.yellow);
     }
-
+    on RPCError catch (e) {
+      print(e);
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.topToBottom,
+          child: EtherTransferFailScreen("Transaction Failed due to ${e.message}"),
+        ),
+      );
+    }
+    catch (ej) {
+      print(ej.message);
+      Navigator.pushReplacement(
+        context,
+        PageTransition(
+          type: PageTransitionType.topToBottom,
+          child: EtherTransferFailScreen("Transaction Failed. Invalid private key or reciever address"),
+        ),
+      );
+    }
     print("sending ether finished!");
   }
 }

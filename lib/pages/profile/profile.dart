@@ -2,6 +2,7 @@ import 'package:cryptox/constant/constant.dart';
 import 'package:cryptox/pages/profile/bank_slider.dart';
 import 'package:cryptox/pages/profile/charity.dart';
 import 'package:cryptox/pages/screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -69,7 +70,8 @@ class _ProfileState extends State<Profile> {
                           ),
                         ),
                         InkWell(
-                          onTap: () {
+                          onTap: () async{
+                            await FirebaseAuth.instance.signOut();
                             Navigator.push(
                               context,
                               MaterialPageRoute(

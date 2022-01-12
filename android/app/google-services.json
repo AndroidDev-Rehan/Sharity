@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "712660805573",
+    "project_id": "sharityapp-9fb93",
+    "storage_bucket": "sharityapp-9fb93.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:712660805573:android:70aaed6bf687fc37454dac",
+        "android_client_info": {
+          "package_name": "com.render.cryptox"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "712660805573-s64u17fp3noonho7j6e33a9e5esca1s6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.render.cryptox",
+            "certificate_hash": "a80edb0a7c85b98cb87b1dc84dc05aabcde9f583"
+          }
+        },
+        {
+          "client_id": "712660805573-rk1acpaa9qtdpc9ecshvvjt5hbgh08pd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBGjBlBY5aB_ezzQENlGDANv0oJQQGAVkk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "712660805573-rk1acpaa9qtdpc9ecshvvjt5hbgh08pd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,24 +1,42 @@
 import 'dart:async';
 
 import 'package:cryptox/constant/constant.dart';
+import 'package:cryptox/pages/admin/adminCharity.dart';
 import 'package:cryptox/pages/screens.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:page_transition/page_transition.dart';
 
+import '../../main.dart';
+
 class OTPScreen extends StatefulWidget {
+
+  final verificationId;
+
+  OTPScreen(this.verificationId);
+
   @override
   _OTPScreenState createState() => _OTPScreenState();
 }
 
 class _OTPScreenState extends State<OTPScreen> {
+
+    String otpText;
+
   var firstController = TextEditingController();
   var secondController = TextEditingController();
   var thirdController = TextEditingController();
   var fourthController = TextEditingController();
+  var fifthController = TextEditingController();
+  var sixthController = TextEditingController();
+
   FocusNode secondFocusNode = FocusNode();
   FocusNode thirdFocusNode = FocusNode();
   FocusNode fourthFocusNode = FocusNode();
+  FocusNode fifthFocusNode = FocusNode();
+  FocusNode sixthFocusNode = FocusNode();
+
 
   loadingDialog() {
     showDialog(
@@ -65,6 +83,8 @@ class _OTPScreenState extends State<OTPScreen> {
                 child: EnterPinScreen())));
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -110,6 +130,7 @@ class _OTPScreenState extends State<OTPScreen> {
                   ),
                 ),
                 SizedBox(height: 50.0),
+
                 // OTP Box Start
                 Padding(
                   padding: EdgeInsets.all(20.0),
@@ -117,7 +138,7 @@ class _OTPScreenState extends State<OTPScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      // 1 Start
+                      /// 1 Start
                       Container(
                         width: 50.0,
                         height: 50.0,
@@ -243,11 +264,77 @@ class _OTPScreenState extends State<OTPScreen> {
                           ),
                           textAlign: TextAlign.center,
                           onChanged: (v) {
-                            loadingDialog();
+                            FocusScope.of(context).requestFocus(fifthFocusNode);
                           },
                         ),
                       ),
                       // 4 End
+                      ///5th
+                      Container(
+                        width: 50.0,
+                        height: 50.0,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 4.0,
+                              spreadRadius: 1.0,
+                              color: Color.fromRGBO(159,77,177, 1).withOpacity(0.6),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          focusNode: fifthFocusNode,
+                          controller: fifthController,
+                          style: black14MediumTextStyle,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(18.0),
+                            border: InputBorder.none,
+                          ),
+                          textAlign: TextAlign.center,
+                          onChanged: (v) {
+                            FocusScope.of(context).requestFocus(sixthFocusNode);
+                          },
+                        ),
+                      ),
+                      ///6th
+                      Container(
+                        width: 50.0,
+                        height: 50.0,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              blurRadius: 4.0,
+                              spreadRadius: 1.0,
+                              color: Color.fromRGBO(159,77,177, 1).withOpacity(0.6),
+                            ),
+                          ],
+                        ),
+                        child: TextField(
+                          focusNode: sixthFocusNode,
+                          controller: sixthController,
+                          style: black14MediumTextStyle,
+                          keyboardType: TextInputType.number,
+                          cursorColor: Colors.black,
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.all(18.0),
+                            border: InputBorder.none,
+                          ),
+                          textAlign: TextAlign.center,
+                          onChanged: (v) {
+                            //TODO hmm
+//                            loadingDialog();
+                          },
+                        ),
+                      ),
+
                     ],
                   ),
                 ),
@@ -280,7 +367,11 @@ class _OTPScreenState extends State<OTPScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: fixPadding * 2.0),
                   child: InkWell(
-                    onTap: (){
+                    onTap: () async{
+
+                      otpText = "$firstController$secondController$thirdController$fourthController$fifthController$sixthController";
+                      await _verifyOTP(otpText);
+
                     // borderRadius: BorderRadius.circular(10.0),
                     Navigator.push(
                           context,
@@ -313,4 +404,38 @@ class _OTPScreenState extends State<OTPScreen> {
       ),
     );
   }
+
+  Future<void> _verifyOTP(String otpText) async {
+
+
+    // we know that _verificationId is not empty
+    final credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId, smsCode: otpText);
+
+    try {
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      if (FirebaseAuth.instance.currentUser != null) {
+        if (FirebaseAuth.instance.currentUser.phoneNumber.toString() == adminPhoneNumber)
+          {
+            navigatorKey.currentState.push(
+                PageTransition(
+                  type: PageTransitionType.rightToLeft,
+                  child: AdminCharityScreen(),
+                )
+            );
+          }
+        else {
+          navigatorKey.currentState.push(
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: Register(),
+              )
+          );
+        }
+      }
+    } catch (e) {
+      print(e);
+    }
+  }
+
 }

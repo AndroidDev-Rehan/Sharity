@@ -1,7 +1,11 @@
 import 'dart:io';
 
 import 'package:cryptox/constant/constant.dart';
+import 'package:cryptox/main.dart';
+import 'package:cryptox/pages/admin/adminCharity.dart';
 import 'package:cryptox/pages/screens.dart';
+import 'package:cryptox/utils/phone_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl_phone_number_input/intl_phone_number_input.dart';
@@ -13,18 +17,27 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+
+  bool loading = false;
+  int count = 0;
+  bool loginSuccess = false;
+  bool otpSent = false;
+  String vId;
+
   DateTime currentBackPressTime;
   String phoneNumber = '';
   String phoneIsoCode;
-  final TextEditingController controller = TextEditingController();
+  String controllerText = "";
+//  final TextEditingController controller = TextEditingController();
   String initialCountry = '92';
   PhoneNumber number = PhoneNumber(isoCode: '92');
-  void onPhoneNumberChange(
-      String number, String internationalizedPhoneNumber, String isoCode) {
+
+  void onPhoneNumberChange(String number, String internationalizedPhoneNumber, String isoCode) {
     setState(() {
       phoneNumber = number;
       phoneIsoCode = isoCode;
     });
+
   }
 
   @override
@@ -36,7 +49,9 @@ class _LoginState extends State<Login> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: WillPopScope(
-          child: ListView(
+          child: loading
+              ? Center(child: CircularProgressIndicator(),)
+              : ListView(
             children: [
               SizedBox(height: 100.0),
               Column(
@@ -70,11 +85,14 @@ class _LoginState extends State<Login> {
                         ],
                       ),
                       child: InternationalPhoneNumberInput(
+                        // onSaved: (PhoneNumber number) {
+                        //   print('On Saved: $number');
+                        // },
                         textStyle: black14RegularTextStyle,
 //                        autoValidate: false,
                         selectorTextStyle: black16MediumTextStyle,
                         initialValue: number,
-                        textFieldController: controller,
+//                        textFieldController: controller,
                         inputBorder: InputBorder.none,
                         inputDecoration: InputDecoration(
                           contentPadding: EdgeInsets.only(bottom: 17),
@@ -85,11 +103,13 @@ class _LoginState extends State<Login> {
 //                        selectorType: PhoneInputSelectorType.DIALOG,
                       selectorConfig: SelectorConfig(
                           selectorType: PhoneInputSelectorType.DIALOG,
-                        trailingSpace: false
-
+                        trailingSpace: false,
                       ),
                         autoValidateMode: AutovalidateMode.disabled,
                         spaceBetweenSelectorAndTextField: 0,
+                        onInputChanged: (PhoneNumber value) {
+                          controllerText = value.toString();
+                        },
                       ),
                     ),
                   ),
@@ -98,15 +118,16 @@ class _LoginState extends State<Login> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: fixPadding * 2.0),
                     child: InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          PageTransition(
-                            type: PageTransitionType.rightToLeft,
-                            child: Register(),
-                          ),
-                        );
-                      },
+                      onTap: () async{
+                        setState(() {
+                          loading = true;
+                        });
+                        await sendOTP(controllerText);
+                        // await Future.delayed(Duration(seconds: 3));
+                        // setState(() {
+                        //   loading = false;
+                        // });
+                        },
                       borderRadius: BorderRadius.circular(10.0),
                       child: Container(
                         width: double.infinity,
@@ -161,4 +182,61 @@ class _LoginState extends State<Login> {
       return true;
     }
   }
+
+  Future<void> sendOTP(String phoneNumber ) async {
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: verificationCompleted,
+        verificationFailed: verificationFailed,
+        codeSent: codeSent,
+        codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
+    print("send OTP is finishing..");
+  }
+
+  void codeAutoRetrievalTimeout(String verificationId) {
+  }
+
+  void codeSent(String verificationId, [int a]) {
+    vId = verificationId;
+    navigatorKey.currentState.push(
+        PageTransition(
+          type: PageTransitionType.rightToLeft,
+          child: OTPScreen(verificationId),
+        )
+    );
+  }
+
+  void verificationFailed(FirebaseAuthException exception) {
+    Fluttertoast.showToast(msg: "There is some error.Please Try again Later");
+  }
+
+  Future<void> verificationCompleted(PhoneAuthCredential credential) async {
+    await FirebaseAuth.instance.signInWithCredential(credential);
+    if (FirebaseAuth.instance.currentUser != null) {
+
+      if (FirebaseAuth.instance.currentUser.phoneNumber.toString() == adminPhoneNumber) {
+        navigatorKey.currentState.push(
+            PageTransition(
+              type: PageTransitionType.rightToLeft,
+              child: AdminCharityScreen(),
+            )
+        );
+      }
+      else {
+        loginSuccess = true;
+        navigatorKey.currentState.push(
+            PageTransition(
+              type: PageTransitionType.rightToLeft,
+              child: Register(),
+            )
+        );
+      }
+    }
+    else {
+      print("Failed to Sign In");
+    }
+  }
+
+
+
 }

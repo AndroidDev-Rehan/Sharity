@@ -113,7 +113,7 @@ class _CharityState extends State<Charity> {
                         PageTransition(
                             type: PageTransitionType.size,
                             alignment: Alignment.bottomCenter,
-                            child: AddCharity()));
+                            child: AddCharity(false)));
                   },
                   child: Container(
                     height: 50.0,
